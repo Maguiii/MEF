@@ -1,23 +1,31 @@
 #include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
 #include <TimerOne.h>
 
+
 /*Este codigo es la Maquina de estados finitos que se va a usar para los pulsadores
-  En este caso se esta implementando con un pulsador y un led 
+  En este caso se esta implementando con un pulsador que incrementa una variable y la muestra en un lcd
   A este codigo le falta correccion 
 */
 #define FALSE 0
 #define TRUE 1
+
 #define puls 10
 #define led 9
+
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 volatile int t = 0;
 volatile int estado = 1;
 volatile bool flagRetencion = FALSE;
 volatile bool flagPulso = FALSE;
+volatile int contador = 0;
 
 void contando();
 
 void state1(){
+  flagPulso = FALSE;
+
   if(digitalRead(puls) == HIGH)
     estado = 1;
 
@@ -27,24 +35,25 @@ void state1(){
   }
 }
 void state2(){
-  if(!flagRetencion)//== FALSE
+  if(!flagRetencion == FALSE)
     estado = 2;
-  if(flagRetencion)//== TRUE
+  if(flagRetencion == TRUE)
     estado = 3;
 }
 void state3(){
-  if(digitalRead(puls) == HIGH){
-    flagPulso = FALSE;
-    estado = 1;
-  }
-  if(digitalRead(puls) == LOW){
-    flagPulso = TRUE;
-    estado = 1;
-  }
+  flagPulso = TRUE;
+  estado = 1;
 }
 
 
 void setup(){
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Esto funciona");
+  delay(1000);
+  lcd.clear();
+
   pinMode(puls, INPUT);
 
   Timer1.initialize(1000);//1ms
@@ -58,17 +67,17 @@ void loop(){
     case 3: state3(); break;
   }
   if(flagPulso == TRUE){
-    digitalWrite(led, HIGH);
+    contador++;
   }
-  else{
-    digitalWrite(led, LOW);
-  }
+  lcd.setCursor(0,0);
+  lcd.print("Cant:");
+  lcd.print(contador);
 }
 
 void contando(){
   t++;
   
-  if(t >= 100)
+  if(t >= 300)
     flagRetencion = TRUE;
   else
     flagRetencion = FALSE;
