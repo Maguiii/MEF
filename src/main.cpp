@@ -2,8 +2,9 @@
 #include <LiquidCrystal_I2C.h>
 #include <TimerOne.h>
 
+/*Retencion de pulsadores implementado como una maquina de estadoRetencions finitos*/
 
-/*Este codigo es la Maquina de estados finitos que se va a usar para los pulsadores
+/*Este codigo es la Maquina de retencions finitos que se va a usar para los pulsadores
   En este caso se esta implementando con un pulsador que incrementa una variable y la muestra en un lcd
   Este codigo esta probado y funciona
   A este codigo le falta correccion de un profesor
@@ -12,40 +13,18 @@
 #define TRUE 1
 
 #define puls 10
-#define led 9
 
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 volatile int t = 0;
-volatile int estado = 1;
+volatile int estadoRetencion = 0; 
+
 volatile bool flagRetencion = FALSE;
 volatile bool flagPulso = FALSE;
+
 volatile int contador = 0;
 
-void contando();
-
-void state1(){
-  flagPulso = FALSE;
-
-  if(digitalRead(puls) == HIGH)
-    estado = 1;
-
-  if(digitalRead(puls) == LOW){
-    t = 0;
-    estado = 2;
-  }
-}
-void state2(){
-  if(!flagRetencion == FALSE)
-    estado = 2;
-  if(flagRetencion == TRUE)
-    estado = 3;
-}
-void state3(){
-  flagPulso = TRUE;
-  estado = 1;
-}
-
+void tiempo();
 
 void setup(){
   lcd.init();
@@ -58,15 +37,40 @@ void setup(){
   pinMode(puls, INPUT);
 
   Timer1.initialize(1000);//1ms
-  Timer1.attachInterrupt(contando);
+  Timer1.attachInterrupt(tiempo);
 }
 
 void loop(){
-  switch(estado){
-    case 1: state1(); break;
-    case 2: state2(); break;
-    case 3: state3(); break;
+  switch(estadoRetencion){
+    case 1:
+      flagPulso = FALSE;
+
+      if(digitalRead(puls) == HIGH)
+        estadoRetencion = 1;
+
+      if(digitalRead(puls) == LOW){
+        t = 0;
+        estadoRetencion = 2;
+      }
+    break;
+    case 2:
+      if(flagRetencion == FALSE)
+        estadoRetencion = 2;
+      if(flagRetencion == TRUE)
+        estadoRetencion = 3;
+    break;
+    case 3: 
+      if(digitalRead(puls) == LOW){
+        flagPulso = TRUE;
+        estadoRetencion = 1;
+      }
+      else{
+        flagPulso = FALSE;
+        estadoRetencion = 1;
+      }
+    break;
   }
+  
   if(flagPulso == TRUE){
     contador++;
   }
@@ -75,10 +79,10 @@ void loop(){
   lcd.print(contador);
 }
 
-void contando(){
+void tiempo(){
   t++;
   
-  if(t >= 300)
+  if(t >= 100)
     flagRetencion = TRUE;
   else
     flagRetencion = FALSE;
