@@ -2,12 +2,10 @@
 #include <LiquidCrystal_I2C.h>
 #include <TimerOne.h>
 
-/*Retencion de pulsadores implementado como una maquina de estadoRetencions finitos*/
-
-/*Este codigo es la Maquina de retencions finitos que se va a usar para los pulsadores
+/*Retencion de pulsadores implementado como una maquina de estados finitos
   En este caso se esta implementando con un pulsador que incrementa una variable y la muestra en un lcd
   Este codigo esta probado y funciona
-  A este codigo le falta correccion de un profesor
+  Tambien esta corregido
 */
 #define FALSE 0
 #define TRUE 1
