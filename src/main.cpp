@@ -5,7 +5,7 @@
 /*Retencion de pulsadores implementado como una maquina de estados finitos
   En este caso se esta implementando con un pulsador que incrementa una variable y la muestra en un lcd
   Este codigo esta probado y funciona
-  Tambien esta corregido
+  Tambien esta corregido(preguntarle a Miranda por las dudas)
 */
 #define FALSE 0
 #define TRUE 1
